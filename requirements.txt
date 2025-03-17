@@ -1,0 +1,7 @@
+Flask==3.1.0
+Flask-SocketIO==5.3.2
+pandas==2.2.3
+openpyxl==3.1.5
+eventlet==0.39.0
+
+
