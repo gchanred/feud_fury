@@ -9,7 +9,12 @@
   </style>
 </head>
 <body>
-  <h1>Face-Off / Play-Pass</h1>
+  <h1>FUED FURY - FACE-OFF / PLAY-PASS</h1>
+  <br>
+  <br>
+  <br>
+  <br>
+  
   {% if error %}
     <p style="color:red;">{{ error }}</p>
   {% endif %}
@@ -17,19 +22,15 @@
     <h2>Select Face-Off Winner:</h2>
     <input type="radio" name="faceoff_winner" value="1" id="team1">
     <label for="team1">{{ team1 }}</label>
-    <span class="helper" title="Select this team if they win the face-off">ℹ️</span><br>
     <input type="radio" name="faceoff_winner" value="2" id="team2">
     <label for="team2">{{ team2 }}</label>
-    <span class="helper" title="Select this team if they win the face-off">ℹ️</span><br>
     <h2>Play or Pass?</h2>
     <input type="radio" name="playpass" value="play" id="play">
     <label for="play">Play</label>
-    <span class="helper" title="Choose 'Play' to retain control">ℹ️</span><br>
     <input type="radio" name="playpass" value="pass" id="pass">
     <label for="pass">Pass</label>
-    <span class="helper" title="Choose 'Pass' to give control to the other team">ℹ️</span><br>
+    <br>
     <button type="submit">Confirm</button>
-    <span class="helper" title="Submit face-off decision">ℹ️</span>
   </form>
 </body>
 </html>

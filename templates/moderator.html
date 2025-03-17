@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Family Feud – Moderator</title>
+  <title>Feud Fury – Moderator</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <style>
     h1 { font-size: 3em; }
@@ -15,19 +15,16 @@
   <audio id="correct-sound" src="{{ url_for('static', filename='correct.wav') }}" preload="auto"></audio>
   <audio id="wrong-sound" src="{{ url_for('static', filename='wrong-buzzer.wav') }}" preload="auto"></audio>
 
-  <h1>FAMILY FEUD – Moderator</h1>
+  <h1>FEUD FURY – Moderator</h1>
   <br>
   <br>
   
   <div class="nav-container">
     <button onclick="toggleMusic()">Mute/Unmute Music</button>
-    <span class="helper" title="Toggle background music">ℹ️</span>
     
     <button onclick="window.location.href='{{ url_for('round_setup') }}'">Setup New Round</button>
-    <span class="helper" title="Go to round setup page">ℹ️</span>
     
     <button onclick="window.open('{{ url_for('contestant') }}','_blank')">Contestant Screen</button>
-    <span class="helper" title="Open contestant view in new window">ℹ️</span>
   </div>
   
   {% with messages = get_flashed_messages(with_categories=true) %}
@@ -44,19 +41,18 @@
   
   <form method="post" action="{{ url_for('start_next_question') }}">
     <button type="submit">Start / Next Question</button>
-    <span class="helper" title="Advance to the next question">ℹ️</span>
   </form>
   
   {% if state.current_question %}
   <section>
-    <h2>Question {{ state.current_question_index + 1 }} of {{ state.chosen_questions|length }}:</h2>
-    <p>{{ state.current_question.question }}</p>
+    <h2>Question  {{ state.current_question_index + 1 }} of {{ state.chosen_questions|length }}:</h2>
+    <span style="text-transform:uppercase"><p>{{ state.current_question.question }}</p></span>
     <form method="post" action="{{ url_for('show_question') }}">
       <button type="submit">Show Question to Contestants</button>
-      <span class="helper" title="Display question on contestant screen">ℹ️</span>
     </form>
     <h3>Answers</h3>
-    <ul id="answers">
+    <span style="text-transform:uppercase">
+      <ul id="answers">
       {% for answer in state.current_question.answers %}
         {% set i = loop.index0 %}
         <li>
@@ -64,7 +60,6 @@
           {% if not state.answers_revealed[i] %}
             <form method="post" action="{{ url_for('reveal_answer', index=i) }}" style="display:inline;" onsubmit="return playSoundAndSubmit(event, 'correct-sound');">
               <button type="submit">Reveal</button>
-              <span class="helper" title="Reveal this answer">ℹ️</span>
             </form>
           {% else %}
             <span> - Revealed</span>
@@ -72,22 +67,20 @@
         </li>
       {% endfor %}
     </ul>
+  </span>
   </section>
   {% endif %}
   
   <section>
     <form method="post" action="{{ url_for('strike') }}" onsubmit="return playSoundAndSubmit(event, 'wrong-sound');">
       <button type="submit">Strike</button>
-      <span class="helper" title="Mark a wrong answer (strike)">ℹ️</span>
     </form>
     {% if state.is_steal_attempt %}
       <form method="post" action="{{ url_for('steal_success') }}" style="display:inline;">
         <button type="submit">Steal Successful</button>
-        <span class="helper" title="Award points for successful steal">ℹ️</span>
       </form>
       <form method="post" action="{{ url_for('steal_failed') }}" style="display:inline;">
         <button type="submit">Steal Failed</button>
-        <span class="helper" title="Award points for failed steal">ℹ️</span>
       </form>
     {% endif %}
   </section>
@@ -100,7 +93,6 @@
       Team {{ state.team2_name }}:
       <input type="text" name="team2_score" value="{{ state.team2_score }}">
       <button type="submit">Update Scores</button>
-      <span class="helper" title="Manually update team scores">ℹ️</span>
     </form>
   </section>
   

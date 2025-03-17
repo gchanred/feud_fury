@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Family Feud – Contestants</title>
+  <title>Feud Fury – Contestants</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <style>
     header {
@@ -60,10 +60,13 @@
   <audio id="bg-music" src="{{ url_for('static', filename='background_music.mp3') }}" loop autoplay muted preload="auto"></audio>
   
   <header>
-    <h1>FAMILY FEUD</h1>
+    <h1>FEUD FURY</h1>
+    <br>
+    <br>
+    <br>
     <div class="team-scores">
-      <div>Team {{ state.team1_name }}: {{ state.team1_score }}</div>
-      <div>Team {{ state.team2_name }}: {{ state.team2_score }}</div>
+      <div id="T1Score">Team <span style="text-transform:uppercase; color:yellow;">{{ state.team1_name }}:</span> <span style="font-size:150%; color:green ;">{{ state.team1_score }}</span></div>
+      <div id="T2Score">Team <span style="text-transform:uppercase; color:yellow;">{{ state.team2_name }}:</span> <span style="font-size:150%; color:green ;">{{ state.team2_score }}</span></div>
     </div>
   </header>
   
@@ -72,8 +75,8 @@
   <main>
     <br>
     <br>
-    <h2 id="question"></h2>
-    <h2><ul id="answers"></ul></h2>
+    <span style="text-transform:uppercase"><h2 id="question"></h2></span>
+    <span style="text-transform:uppercase"><h2><ul id="answers"></ul></h2></span>
     <div id="strikes-display"></div>
     
     <section id="winner" style="display:none;">
@@ -88,7 +91,7 @@
     var socket = io();
     socket.on('state_update', function(data){
       if (data.question_shown && data.current_question) {
-        $("#question").text("Q" + data.current_question_index + " of " + data.total_questions + ": " + data.current_question.question);
+        $("#question").text("Question " + data.current_question_index + " of " + data.total_questions + ": " + data.current_question.question);
         let answersHtml = "";
         data.current_question.answers.forEach(function(ans, index) {
           if (ans.revealed) {
@@ -102,9 +105,14 @@
         $("#question").text("");
         $("#answers").html("");
       }
-      $(".team-scores div:first").text("Team " + data.team1_name + ": " + data.team1_score);
+      /* $(".team-scores div:first").text("Team " + data.team1_name + ": " + data.team1_score);
       $(".team-scores div:last").text("Team " + data.team2_name + ": " + data.team2_score);
-      
+     */  
+
+      document.getElementById("T1Score").innerHTML = '<div>Team <span style="text-transform:uppercase; color:yellow;">' + data.team1_name + ':</span> <span style="font-size:150%; color:green ;">' + data.team1_score + '</span></div>'
+      document.getElementById("T2Score").innerHTML = '<div>Team <span style="text-transform:uppercase; color:yellow;">' + data.team2_name + ':</span> <span style="font-size:150%; color:green ;">' + data.team2_score + '</span></div>'
+
+
       let strikesX = "";
       for (let i = 0; i < data.strikes; i++) {
         strikesX += "X";
