@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Round Setup – Family Feud</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    body { text-align: left; }
+    .container { margin: auto; max-width: 800px; }
+    h1 { text-align: center; font-size: 3em; }
+    h2 { font-size: 2em; }
+    ul { list-style: none; padding-left: 0; }
+    .helper { margin-left: 5px; cursor: help; }
+    /* Style for the random questions display area */
+    #random-questions-display {
+      width: 100%;
+      font-size: 1.2em;
+      margin-top: 10px;
+      padding: 5px;
+      border: 1px solid #fff;
+      background-color: rgba(255,255,255,0.1);
+      color: #fff;
+      resize: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Round Setup</h1>
+    <br>
+    <br>
+      
+    {% if error %}
+      <p style="color:red;">{{ error }}</p>
+    {% endif %}
+    <form method="post" action="{{ url_for('round_setup') }}">
+      <h2>Enter Team Names:</h2>
+      <label>Team 1: <input type="text" name="team1"></label><br>
+      <label>Team 2: <input type="text" name="team2"></label><br>
+      
+      <!-- New label and button for random selection -->
+      <p>
+        Choose 4 questions from list below or click here for the system to
+        <button type="button" onclick="chooseRandom()">Choose 4 Random Questions</button>
+        <span class="helper" title="Randomly select 4 questions">ℹ️</span>
+      </p>
+      <!-- Text area to display the randomly chosen questions -->
+      <textarea id="random-questions-display" rows="4" readonly></textarea>
+      
+      <br>
+      <button type="submit">Setup Round</button>
+      <span class="helper" title="Submit round setup">ℹ️</span>
+      
+      <h2>Select exactly {{ REQUIRED_QUESTION_COUNT if REQUIRED_QUESTION_COUNT else 4 }} Questions:</h2>
+      <ul id="questions-list">
+        {% for q in questions %}
+        <li>
+          <!-- Add data-question attribute to hold the question text -->
+          <input type="checkbox" name="questions" value="{{ loop.index0 }}" data-question="{{ q.question }}"> Q{{ loop.index }}: {{ q.question }}
+        </li>
+        {% endfor %}
+      </ul>
+    </form>
+  </div>
+  
+  <script>
+    function chooseRandom() {
+      // Get all question checkboxes
+      const checkboxes = document.querySelectorAll('input[name="questions"]');
+      // Uncheck all
+      checkboxes.forEach(cb => cb.checked = false);
+      const total = checkboxes.length;
+      // Use a Set to get 4 unique random indices
+      const indices = new Set();
+      while (indices.size < 4 && indices.size < total) {
+        indices.add(Math.floor(Math.random() * total));
+      }
+      // Create an array to hold the text of selected questions
+      const selectedQuestions = [];
+      indices.forEach(i => {
+        checkboxes[i].checked = true;
+        selectedQuestions.push(checkboxes[i].dataset.question);
+      });
+      // Display the selected questions in the textarea (each on its own line)
+      document.getElementById('random-questions-display').value = selectedQuestions.join("\n");
+    }
+  </script>
+</body>
+</html>

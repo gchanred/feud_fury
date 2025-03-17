@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap');
+
+body {
+    background-image: url("../static/background.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    font-family: "Roboto Condensed", sans-serif;
+}
+
+#answers {
+    list-style: none;
+    margin: auto;
+    padding: 0;
+    text-align: left;
+    max-width: 600px;
+}
+
+.helper {
+    margin-left: 5px;
+    cursor: help;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.flashes {
+    list-style: none;
+    padding: 0;
+}
+
+.flashes li {
+    margin: 5px;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.flashes .success { background-color: #4CAF50; }
+.flashes .error { background-color: #f44336; }
+.flashes .info { background-color: #2196F3; }
+.flashes .warning { background-color: #ff9800; }
+
+nav button {
+    color: white;
+    background: transparent;
+    border: 1px solid white;
+    padding: 8px 12px;
+    margin: 0 5px;
+    cursor: pointer;
+}

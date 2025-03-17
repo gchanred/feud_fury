@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Family Feud – Contestants</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    header {
+      text-align: center;
+      padding: 10px;
+      background: rgba(0,0,0,0.5);
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 10;
+    }
+    header h1 {
+      font-size: 3em;
+      margin: 0;
+    }
+    .team-scores {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      margin-left: 40px;
+      margin-right: 40px;
+      font-size: 1.8em;
+      padding: 0 20px;
+    }
+    main {
+      margin-top: 150px;
+      text-align: center;
+    }
+    #answers {
+      list-style: none;
+      margin: auto;
+      padding: 0;
+      text-align: left;
+      max-width: 600px;
+    }
+    #giant-x {
+      font-size: 150px;
+      color: red;
+      position: fixed;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      z-index: 20;
+    }
+    #strikes-display {
+      font-size: 2em;
+      color: red;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Background music -->
+  <audio id="bg-music" src="{{ url_for('static', filename='background_music.mp3') }}" loop autoplay muted preload="auto"></audio>
+  
+  <header>
+    <h1>FAMILY FEUD</h1>
+    <div class="team-scores">
+      <div>Team {{ state.team1_name }}: {{ state.team1_score }}</div>
+      <div>Team {{ state.team2_name }}: {{ state.team2_score }}</div>
+    </div>
+  </header>
+  
+  <div id="giant-x">X</div>
+  
+  <main>
+    <br>
+    <br>
+    <h2 id="question"></h2>
+    <h2><ul id="answers"></ul></h2>
+    <div id="strikes-display"></div>
+    
+    <section id="winner" style="display:none;">
+      <h2 id="winnerText"></h2>
+    </section>
+  </main>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    var lastStrikeCount = 0;
+    var socket = io();
+    socket.on('state_update', function(data){
+      if (data.question_shown && data.current_question) {
+        $("#question").text("Q" + data.current_question_index + " of " + data.total_questions + ": " + data.current_question.question);
+        let answersHtml = "";
+        data.current_question.answers.forEach(function(ans, index) {
+          if (ans.revealed) {
+            answersHtml += "<li>" + (index+1) + ". " + ans.text + " (" + ans.points + " pts)</li>";
+          } else {
+            answersHtml += "<li>" + (index+1) + ".</li>";
+          }
+        });
+        $("#answers").html(answersHtml);
+      } else {
+        $("#question").text("");
+        $("#answers").html("");
+      }
+      $(".team-scores div:first").text("Team " + data.team1_name + ": " + data.team1_score);
+      $(".team-scores div:last").text("Team " + data.team2_name + ": " + data.team2_score);
+      
+      let strikesX = "";
+      for (let i = 0; i < data.strikes; i++) {
+        strikesX += "X";
+      }
+      $("#strikes-display").text(strikesX);
+      
+      if (data.strikes > lastStrikeCount) {
+        $("#giant-x").stop(true, true)
+          .css("display", "block")
+          .text("X".repeat(data.strikes))
+          .fadeIn(200)
+          .delay(2000)
+          .fadeOut(200);
+      }
+      lastStrikeCount = data.strikes;
+      
+      if (data.winner) {
+        $("#winnerText").text("Congratulations! " + data.winner.name + " wins with " + data.winner.points + " points!");
+        $("#winner").show();
+      } else {
+        $("#winner").hide();
+      }
+    });
+  </script>
+</body>
+</html>
