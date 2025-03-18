@@ -207,6 +207,11 @@ def moderator():
 def contestant():
     return render_template('contestant.html', state=game_state)
 
+@app.route('/instructions')
+def instructions():
+    return render_template('instructions.html')
+
+
 @app.route('/api/state')
 def api_state():
     data = {

@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Feud Fury - Instructions</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    body {
+      padding: 20px;
+      text-align: left;
+      background-color: rgba(0,0,0,0.8);
+    }
+    h1 {
+      text-align: center;
+      font-size: 3em;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2em;
+      margin-top: 20px;
+    }
+    p, li {
+      font-size: 1.2em;
+      line-height: 1.5;
+    }
+    ul {
+      margin-left: 20px;
+    }
+    code {
+      background-color: #333;
+      color: #fff;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+    .return-button {
+      display: block;
+      width: 200px;
+      margin: 30px auto;
+      padding: 10px;
+      font-size: 1.2em;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .return-button-top {
+      float:right;
+      width: 200px;
+      margin: 30px auto;
+      padding: 10px;
+      font-size: 1.2em;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>FEUD FURY - Instruction Manual</h1>
+<br>
+
+    <!-- Return to game button -->
+    <button class="return-button-top" onclick="window.location.href='{{ url_for('moderator') }}'">Return to the Game</button>
+
+
+  <h2>Introduction</h2>
+  <p>
+    Feud Fury is an engaging, real-time survey game where two teams compete to guess the most popular answers to survey questions. This game is controlled by a moderator while contestants follow along on a separate display. Enjoy the excitement at parties, family gatherings, or team-building events!
+  </p>
+  <h2>Getting Started</h2>
+  <ol>
+    <li>
+      <strong>Access the Game:</strong> Open your browser and go to the moderator view (e.g., <code>https://feudfurygame.chandukesireddy.com/</code>). For contestants, use <code>https://feudfury.onrender.com/contestant</code> in another window or share the URL.
+    </li>
+    <li>
+      <strong>No Login Required:</strong> Simply visit the URL to join the game.
+    </li>
+  </ol>
+  <h2>Moderator Interface</h2>
+  <ul>
+    <li><strong>Round Setup:</strong> Enter team names and choose questions manually or use the “Choose 4 Random Questions” button to let the system pick four questions at random.</li>
+    <li><strong>Starting the Game:</strong> Click “Start / Next Question” to begin or advance through the game.</li>
+    <li><strong>Show Question:</strong> Click “Show Question to Contestants” to display the question on the contestant screen.</li>
+    <li><strong>Reveal Answers:</strong> Click “Reveal” next to an answer to display it with audio cues.</li>
+    <li><strong>Strikes & Steals:</strong> Mark a wrong answer by clicking “Strike.” After three strikes, a steal attempt can be made using the provided buttons.</li>
+    <li><strong>Face-Off / Play-Pass:</strong> When the first answer is revealed, choose the winning team and whether they will “Play” or “Pass” to determine control.</li>
+    <li><strong>Score Updates:</strong> Scores update in real time, but you can also manually adjust them using the “Update Scores” button.</li>
+  </ul>
+  <h2>Contestant Interface</h2>
+  <ul>
+    <li>The contestant screen shows a large “FEUD FURY” title and team scores in a fixed header.</li>
+    <li>Once the moderator displays a question, it appears in the center along with the answers (revealed as they are announced).</li>
+    <li>Strikes are shown as red “X” characters below the question and answers; a giant red “X” briefly appears when new strikes occur.</li>
+    <li>The winner is announced when the game is complete.</li>
+  </ul>
+  <h2>General Tips</h2>
+  <ul>
+    <li><strong>Helper Icons:</strong> Hover over ℹ️ icons next to buttons for tooltips explaining their function.</li>
+    <li><strong>Audio Controls:</strong> The moderator can mute or unmute background music using the dedicated button.</li>
+    <li><strong>Real-Time Updates:</strong> Changes in the game state are pushed in real time—no manual refresh is needed.</li>
+  </ul>
+  <h2>Troubleshooting</h2>
+  <p>
+    If you experience any issues, ensure your browser supports WebSockets and that your network isn’t blocking Socket.IO connections.
+  </p>
+  <p>
+    Enjoy playing Feud Fury and have fun competing with your friends and family!
+  </p>
+  <!-- Return to game button -->
+  <button class="return-button" onclick="window.location.href='{{ url_for('moderator') }}'">Return to the Game</button>
+</body>
+</html>
