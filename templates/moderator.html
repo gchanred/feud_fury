@@ -43,18 +43,62 @@
   <br>    
   <hr>
   <br>    
-  
+
+  <div class="grid-container">
+<div class="grid-item-a">
   <form method="post" action="{{ url_for('start_next_question') }}">
-    <button  class="button-55" type="submit">Start / Next Question</button>
-  </form>
+    <button  class="button-55" type="submit"> Start / Move to Next Question &nbsp;</button>
+  </form> 
+</div>
+<div class="grid-item-b">
+  <form method="post" action="{{ url_for('show_question') }}">
+    <button class="button-55" type="submit">Show Question to Contestants</button>
+  </form> 
+</div>
+<div class="grid-item-c">
+  <span style="font-size: 150%;text-align: center;">
+  Team in Play: 
+    {% if state.current_control_team == 1 %}
+    <span style="text-transform:uppercase">{{ state.team1_name }}</span>
+    {% elif state.current_control_team == 2 %}
+    <span style="text-transform:uppercase">{{ state.team2_name }}</span>
+    {% else %}
+    <span style="text-transform:uppercase">Not set</span>
+    {% endif %}
   
+</span>
+</div>
+<div class="grid-item-d">
+  <span style="font-size: 150%;text-align: center;">
+  Strikes: {{ state.team_in_play_strikes }}
+</span>
+</div>
+<div class="grid-item-e">
+
+  <section>
+    <div class="form-row">
+    <form method="post" action="{{ url_for('update_scores') }}">
+      Team <span style="text-transform:uppercase">{{ state.team1_name }}:</span>
+      <input class="inputtb" type="text" name="team1_score" value="{{ state.team1_score }}">
+      <br>   <br> 
+      Team <span style="text-transform:uppercase">{{ state.team2_name }}:</span>
+      <input class="inputtb" type="text" name="team2_score" value="{{ state.team2_score }}">
+      <br> <br> 
+      <button  class="button-55-sm" type="submit">Update Scores</button>
+    </form>
+  </div>
+  </section>
+
+
+
+
+</div>
+ </div>
   {% if state.current_question %}
   <section>
     <h2>Question  {{ state.current_question_index + 1 }} of {{ state.chosen_questions|length }}:</h2>
     <span style="text-transform:uppercase"><p>{{ state.current_question.question }}</p></span>
-    <form method="post" action="{{ url_for('show_question') }}">
-      <button class="button-55-sm" type="submit">Show Question to Contestants</button>
-    </form> 
+
     <h3>Answers</h3>
     <span style="text-transform:uppercase">
       <ul id="answers">
@@ -77,6 +121,7 @@
   {% endif %}
  <br> 
   <section>
+    <div class="form-row">
     <form method="post" action="{{ url_for('strike') }}" onsubmit="return playSoundAndSubmit(event, 'wrong-sound');">
       <button  class="button-55-sm" type="submit">Strike</button>
     </form>
@@ -88,27 +133,33 @@
         <button  class="button-55-sm" type="submit">Steal Failed</button>
       </form>
     {% endif %}
+  </div>
   </section>
   
   <section>
     <h3>Scores</h3>
+    <div class="form-row">
     <form method="post" action="{{ url_for('update_scores') }}">
-      Team {{ state.team1_name }}:
-      <input type="text" name="team1_score" value="{{ state.team1_score }}">
-      Team {{ state.team2_name }}:
-      <input type="text" name="team2_score" value="{{ state.team2_score }}">
+      Team <span style="text-transform:uppercase">{{ state.team1_name }}:</span>
+      <input class="inputtb" type="text" name="team1_score" value="{{ state.team1_score }}">
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      Team <span style="text-transform:uppercase">{{ state.team2_name }}:</span>
+      <input class="inputtb" type="text" name="team2_score" value="{{ state.team2_score }}">
+      &nbsp;&nbsp;&nbsp;&nbsp;
       <button  class="button-55-sm" type="submit">Update Scores</button>
     </form>
+  </div>
   </section>
   
   <section>
     <p>Team in Play: 
       {% if state.current_control_team == 1 %}
-        {{ state.team1_name }}
+      <span style="text-transform:uppercase">{{ state.team1_name }}</span>
       {% elif state.current_control_team == 2 %}
-        {{ state.team2_name }}
+      <span style="text-transform:uppercase">{{ state.team2_name }}</span>
       {% else %}
-        Not set
+      <span style="text-transform:uppercase">Not set</span>
       {% endif %}
     </p>
     <p>Strikes: {{ state.team_in_play_strikes }}</p>

@@ -5,23 +5,13 @@
   <title>Round Setup – Feud Fury</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <style>
-    body { text-align: left; }
+    body { text-align: left;    font-family: "Roboto Condensed", sans-serif; }
     .container { margin: auto; max-width: 800px; }
     h1 { text-align: center; font-size: 3em; }
     h2 { font-size: 2em; }
     ul { list-style: none; padding-left: 0; }
     .helper { margin-left: 5px; cursor: help; }
-    /* Style for the random questions display area */
-    #random-questions-display {
-      width: 100%;
-      font-size: 1.2em;
-      margin-top: 10px;
-      padding: 5px;
-      border: 1px solid #fff;
-      background-color: rgba(255,255,255,0.1);
-      color: #fff;
-      resize: none;
-    }
+
   </style>
 </head>
 <body>
@@ -34,27 +24,37 @@
       <p style="color:red;">{{ error }}</p>
     {% endif %}
     <form method="post" action="{{ url_for('round_setup') }}">
-      <h2>Enter Team Names:</h2>
-      <label>Team 1: <input type="text" name="team1"></label><br>
-      <label>Team 2: <input type="text" name="team2"></label><br>
-      
-      <!-- New label and button for random selection -->
-      <p>
-        Choose 4 questions from list below or click here for the system to
-        <button type="button" onclick="chooseRandom()">Choose 4 Random Questions</button>
-      </p>
-      <!-- Text area to display the randomly chosen questions -->
-      <textarea id="random-questions-display" rows="4" readonly></textarea>
-      
+      <h2>1. Enter Team Names:</h2>
+      <div class="form-row">
+      <label>Team 1: <input class="inputtb" type="text" name="team1"></label><br>
       <br>
-      <button type="submit">Setup Round</button>
+      <br>
+      <label>Team 2: <input class="inputtb" type="text" name="team2"></label><br>
+    </div>
+      <!-- New label and button for random selection -->
+      <h2>
+        2. Choose Questions For The Round:
+      </h2>
+      <p>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Choose from &nbsp;&nbsp;<a href="#questions-list-Title" class="button-55-sm">Questions list below</a> &nbsp;&nbsp; or &nbsp;&nbsp;
+        <button class="button-55-sm" type="button" onclick="chooseRandom()">Let system randomly select</button>
+      </p>
+      <h2>
+        3. Review & Submit:
+      </h2>
+      <!-- Text area to display the randomly chosen questions -->
+      <textarea id="random-questions-display" rows="4" readonly>Selected Questions:</textarea>
       
-      <h2>Select exactly {{ REQUIRED_QUESTION_COUNT if REQUIRED_QUESTION_COUNT else 4 }} Questions:</h2>
+      <br>  
+      <br>
+      <span style="display: flex;justify-content: center;align-items: center;"> <button class="button-55" type="submit">Setup Round</button></span>
+      
+      <h2 id="questions-list-Title">Select exactly {{ REQUIRED_QUESTION_COUNT if REQUIRED_QUESTION_COUNT else 4 }} Questions:</h2>
       <ul id="questions-list">
         {% for q in questions %}
         <li>
           <!-- Add data-question attribute to hold the question text -->
-          <input type="checkbox" name="questions" value="{{ loop.index0 }}" data-question="{{ q.question }}"> Q{{ loop.index }}: {{ q.question }}
+          <input type="checkbox" name="questions" onclick="ShowSelectedQuestion(this)" value="{{ loop.index0 }}" data-question="{{ q.question }}"> Q{{ loop.index }}: {{ q.question }}
         </li>
         {% endfor %}
       </ul>
@@ -77,11 +77,22 @@
       const selectedQuestions = [];
       indices.forEach(i => {
         checkboxes[i].checked = true;
-        selectedQuestions.push(checkboxes[i].dataset.question);
+        selectedQuestions.push("Q"+ i + ": " + checkboxes[i].dataset.question);
       });
       // Display the selected questions in the textarea (each on its own line)
-      document.getElementById('random-questions-display').value = selectedQuestions.join("\n");
+      document.getElementById('random-questions-display').value = "Selected Questions: \n" + selectedQuestions.join("\n");
     }
+
+    function ShowSelectedQuestion(cb) {
+      var qno= 0;
+      qno=Number(cb.value)+ 1;
+      // Display the selected questions in the textarea (each on its own line)
+      document.getElementById('random-questions-display').value = document.getElementById('random-questions-display').value + "\n" + "Q"+ qno + ": " + cb.dataset.question ;
+    }
+
+    
+
+
   </script>
 </body>
 </html>
