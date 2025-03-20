@@ -79,11 +79,11 @@
   <section>
     <div class="form-row">
     <form method="post" action="{{ url_for('update_scores') }}">
-      Team <span style="text-transform:uppercase">{{ state.team1_name }}:</span>
-      <input class="inputtb" type="text" name="team1_score" value="{{ state.team1_score }}">
+      Team <span style="text-transform:uppercase;">{{ state.team1_name }}:</span>
+      <input class="inputtb"  style="float:right;" type="text" name="team1_score" value="{{ state.team1_score }}">
       <br>   <br> 
       Team <span style="text-transform:uppercase">{{ state.team2_name }}:</span>
-      <input class="inputtb" type="text" name="team2_score" value="{{ state.team2_score }}">
+      <input class="inputtb"  style="float:right;" type="text" name="team2_score" value="{{ state.team2_score }}">
       <br> <br> 
       <button  class="button-55-sm" style="float:right;" type="submit">Update Scores</button>
     </form>
