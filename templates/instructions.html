@@ -65,7 +65,7 @@
 <br>
 
     <!-- Return to game button -->
-    <button class="return-button-top" onclick="window.location.href='{{ url_for('moderator') }}'">Return to the Game</button>
+    <button class="button-55" style="float:right;" onclick="window.location.href='{{ url_for('moderator') }}'">Return to the Game</button>
 
 
   <h2>Introduction</h2>
@@ -75,7 +75,10 @@
   <h2>Getting Started</h2>
   <ol>
     <li>
-      <strong>Access the Game:</strong> Open your browser and go to the moderator view (e.g., <code>https://feudfurygame.chandukesireddy.com/</code>). For contestants, use <code>https://feudfury.onrender.com/contestant</code> in another window or share the URL.
+        <strong>Moderator:</strong> A moderator is required to setup and conduct the game. Moderator needs to launch the contestant window after the game is setup and ensure Contestants can only see that window (use a TV/Monitor and use screen extension). 
+    </li>
+      <li>
+      <strong>Access the Game:</strong> Open your browser and go to the moderator view (e.g., <code>https://feudfurygame.chandukesireddy.com/</code>). For contestants, the moderator will launch the window from the moderator controls and share the screen.
     </li>
     <li>
       <strong>No Login Required:</strong> Simply visit the URL to join the game.
@@ -83,8 +86,8 @@
   </ol>
   <h2>Moderator Interface</h2>
   <ul>
-    <li><strong>Round Setup:</strong> Enter team names and choose questions manually or use the “Choose 4 Random Questions” button to let the system pick four questions at random.</li>
-    <li><strong>Starting the Game:</strong> Click “Start / Next Question” to begin or advance through the game.</li>
+    <li><strong>Round Setup:</strong> Enter team names and choose questions manually from the list or use the “Let the system select randomly” button to let the system pick four questions at random.</li>
+    <li><strong>Starting the Game:</strong> Ensure you click on the 'Launch Contestant Screen' and share the window with the contestants. Click “Start / Move to Next Question” to begin or advance through the game after that.</li>
     <li><strong>Show Question:</strong> Click “Show Question to Contestants” to display the question on the contestant screen.</li>
     <li><strong>Reveal Answers:</strong> Click “Reveal” next to an answer to display it with audio cues.</li>
     <li><strong>Strikes & Steals:</strong> Mark a wrong answer by clicking “Strike.” After three strikes, a steal attempt can be made using the provided buttons.</li>
@@ -112,6 +115,6 @@
     Enjoy playing Feud Fury and have fun competing with your friends and family!
   </p>
   <!-- Return to game button -->
-  <button class="return-button" onclick="window.location.href='{{ url_for('moderator') }}'">Return to the Game</button>
+  <button class="button-55" style="float:center;" onclick="window.location.href='{{ url_for('moderator') }}'">Return to the Game</button>
 </body>
 </html>

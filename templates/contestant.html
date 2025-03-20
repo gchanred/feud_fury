@@ -65,8 +65,9 @@
     <br>
     <br>
     <div class="team-scores">
-      <div id="T1Score">Team <span style="text-transform:uppercase; color:yellow;">{{ state.team1_name }}:</span> <span style="font-size:150%; color:green ;">{{ state.team1_score }}</span></div>
-      <div id="T2Score">Team <span style="text-transform:uppercase; color:yellow;">{{ state.team2_name }}:</span> <span style="font-size:150%; color:green ;">{{ state.team2_score }}</span></div>
+      <div id="T1Score">Team <span style="text-transform:uppercase; color:yellow;">{{ state.team1_name }}:</span> <span class="button-55" style="font-size:150%; color:green ;padding: 15px;" >{{ state.team1_score }}</span></div>
+      <div id="strikes-display" style="text-transform:uppercase; color:Red;font-size:100%;">Strikes: </div>
+      <div id="T2Score">Team <span style="text-transform:uppercase; color:yellow;">{{ state.team2_name }}:</span> <span class="button-55" style="font-size:150%; color:green ;padding: 15px;">{{ state.team2_score }}</span></div>
     </div>
   </header>
   
@@ -75,9 +76,9 @@
   <main>
     <br>
     <br>
+    <br>
     <span style="text-transform:uppercase"><h2 id="question"></h2></span>
     <span style="text-transform:uppercase"><h2><ul id="answers"></ul></h2></span>
-    <div id="strikes-display"></div>
     
     <section id="winner" style="display:none;">
       <h2 id="winnerText"></h2>
@@ -109,11 +110,22 @@
       $(".team-scores div:last").text("Team " + data.team2_name + ": " + data.team2_score);
      */  
 
-      document.getElementById("T1Score").innerHTML = '<div>Team <span style="text-transform:uppercase; color:yellow;">' + data.team1_name + ':</span> <span style="font-size:150%; color:green ;">' + data.team1_score + '</span></div>'
-      document.getElementById("T2Score").innerHTML = '<div>Team <span style="text-transform:uppercase; color:yellow;">' + data.team2_name + ':</span> <span style="font-size:150%; color:green ;">' + data.team2_score + '</span></div>'
+      if (data.current_control_team == 1) {
+          document.getElementById("T1Score").innerHTML = '<div><span style="text-decoration: underline;text-decoration-thickness: 8px;text-shadow:2px 2px 10px , 2px 2px 10px ;  ">Team </span> <span style="text-transform:uppercase; color:yellow;text-decoration: underline;text-decoration-thickness: 8px;text-shadow:2px 2px 10px , 2px 2px 10px; ">' + data.team1_name + ':</span> <span class="button-55" style="font-size:150%; color:green ;padding: 15px;" >' + data.team1_score + '</span></div>'
+          document.getElementById("T2Score").innerHTML = '<div>Team <span style="text-transform:uppercase; color:yellow;">' + data.team2_name + ':</span> <span class="button-55" style="font-size:150%; color:green ;padding: 15px;" >' + data.team2_score + '</span></div>'
+      } 
+      else if (data.current_control_team == 2) {
+          document.getElementById("T1Score").innerHTML = '<div>Team <span style="text-transform:uppercase; color:yellow;">' + data.team1_name + ':</span> <span class="button-55" style="font-size:150%; color:green ;padding: 15px;" >' + data.team1_score + '</span></div>'
+          document.getElementById("T2Score").innerHTML = '<div><span style="text-decoration: underline;text-decoration-thickness: 8px;text-shadow:2px 2px 10px , 2px 2px 10px ; ">Team </span><span style="text-transform:uppercase; color:yellow;text-decoration: underline;text-decoration-thickness: 8px;text-shadow:2px 2px 10px , 2px 2px 10px ; ">' + data.team2_name + ':</span> <span class="button-55" style="font-size:150%; color:green ;padding: 15px;" >' + data.team2_score + '</span></div>'
+      }
+      else {
+          document.getElementById("T1Score").innerHTML = '<div>Team <span style="text-transform:uppercase; color:yellow;">' + data.team1_name + ':</span> <span class="button-55" style="font-size:150%; color:green ;padding: 15px;" >' + data.team1_score + '</span></div>'
+          document.getElementById("T2Score").innerHTML = '<div>Team <span style="text-transform:uppercase; color:yellow;">' + data.team2_name + ':</span> <span class="button-55" style="font-size:150%; color:green ;padding: 15px;" >' + data.team2_score + '</span></div>'
+          }
 
+      
 
-      let strikesX = "";
+      let strikesX = "Strikes: ";
       for (let i = 0; i < data.strikes; i++) {
         strikesX += "X";
       }
