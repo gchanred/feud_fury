@@ -1,7 +1,5 @@
 <!doctype html>
 <html>
-
-
 <head>
   <meta charset="utf-8">
   <title>Feud Fury – Moderator</title>
@@ -12,139 +10,123 @@
   </style>
 </head>
 <body>
-  <!-- Background music and sound effects -->
   <audio id="bg-music" src="{{ url_for('static', filename='background_music.mp3') }}" loop autoplay muted preload="auto"></audio>
   <audio id="correct-sound" src="{{ url_for('static', filename='correct.wav') }}" preload="auto"></audio>
   <audio id="wrong-sound" src="{{ url_for('static', filename='wrong-buzzer.wav') }}" preload="auto"></audio>
 
-  <span id="title"> <h1>FEUD FURY – Moderator</h1> </span>
-  <span id="instbutton"><button class="button-55" onclick="window.location.href='{{ url_for('instructions') }}'">Instructions</button></span> 
-
-  <br>
-    <br>
-    <br>
-    <br>
+  <span id="title"><h1>FEUD FURY – Moderator</h1></span>
+  <span id="instbutton">
+    <button class="button-55" onclick="window.location.href='{{ url_for('instructions', room=room) }}'">Instructions</button>
+  </span>
+  <br><br><br><br>
   <div class="nav-container">
-    
-    <button class="button-55" onclick="window.location.href='{{ url_for('round_setup') }}'">Setup New Round</button>
-    <button class="button-55" onclick="window.open('{{ url_for('contestant') }}','_blank')">Launch Contestant Screen</button>
+    <button class="button-55" onclick="window.location.href='{{ url_for('round_setup', room=room) }}'">Setup New Round</button>
+    <button class="button-55" onclick="window.open('{{ url_for('contestant', room=room) }}','_blank')">Launch Contestant Screen</button>
     <button class="button-55" onclick="toggleMusic()">Mute/Unmute Game Music</button>
-    </div>
+  </div>
   
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       <ul class="flashes">
-      {% for category, message in messages %}
-        <li class="{{ category }}">{{ message }}</li>
-      {% endfor %}
+        {% for category, message in messages %}
+          <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
       </ul>
     {% endif %}
   {% endwith %}
   
-  <br>    
-  <hr>
-  <br>    
-
+  <br><hr><br>
   <div class="grid-container">
-<div class="grid-item-a">
-  <form method="post" action="{{ url_for('start_next_question') }}">
-    <button  class="button-55" type="submit"> Start / Move to Next Question &nbsp;</button>
-  </form> 
-</div>
-<div class="grid-item-b">
-  <form method="post" action="{{ url_for('show_question') }}">
-    <button class="button-55" type="submit">Show Question to Contestants</button>
-  </form> 
-</div>
-<div class="grid-item-c">
-  <span style="font-size: 150%;text-align: center;">
-  Team in Play: 
-    {% if state.current_control_team == 1 %}
-    <span style="text-transform:uppercase">{{ state.team1_name }}</span>
-    {% elif state.current_control_team == 2 %}
-    <span style="text-transform:uppercase">{{ state.team2_name }}</span>
-    {% else %}
-    <span style="text-transform:uppercase">Not set</span>
-    {% endif %}
-  
-</span>
-</div>
-<div class="grid-item-d">
-  <span style="font-size: 150%;text-align: center;">
-  Strikes: {{ state.team_in_play_strikes }}
-</span>
-</div>
-<div class="grid-item-e">
-
-  <section>
-    <div class="form-row">
-    <form method="post" action="{{ url_for('update_scores') }}">
-      Team <span style="text-transform:uppercase;">{{ state.team1_name }}:</span>
-      <input class="inputtb"  style="float:right;" type="text" name="team1_score" value="{{ state.team1_score }}">
-      <br>   <br> 
-      Team <span style="text-transform:uppercase">{{ state.team2_name }}:</span>
-      <input class="inputtb"  style="float:right;" type="text" name="team2_score" value="{{ state.team2_score }}">
-      <br> <br> 
-      <button  class="button-55-sm" style="float:right;" type="submit">Override Scores Manually</button>
-    </form>
+    <div class="grid-item-a">
+      <form method="post" action="{{ url_for('start_next_question', room=room) }}">
+        <button class="button-55" type="submit">Start / Move to Next Question</button>
+      </form> 
+    </div>
+    <div class="grid-item-b">
+      <form method="post" action="{{ url_for('show_question', room=room) }}">
+        <button class="button-55" type="submit">Show Question to Contestants</button>
+      </form> 
+    </div>
+    <div class="grid-item-c">
+      <span style="font-size: 150%; text-align: center;">
+        Team in Play: 
+        {% if state.current_control_team == 1 %}
+          <span style="text-transform:uppercase">{{ state.team1_name }}</span>
+        {% elif state.current_control_team == 2 %}
+          <span style="text-transform:uppercase">{{ state.team2_name }}</span>
+        {% else %}
+          <span style="text-transform:uppercase">Not set</span>
+        {% endif %}
+      </span>
+    </div>
+    <div class="grid-item-d">
+      <span style="font-size: 150%; text-align: center;">
+        Strikes: {{ state.team_in_play_strikes }}
+      </span>
+    </div>
+    <div class="grid-item-e">
+      <section>
+        <div class="form-row">
+          <form method="post" action="{{ url_for('update_scores', room=room) }}">
+            Team <span style="text-transform:uppercase;">{{ state.team1_name }}:</span>
+            <input class="inputtb" style="float:right;" type="text" name="team1_score" value="{{ state.team1_score }}">
+            <br><br>
+            Team <span style="text-transform:uppercase">{{ state.team2_name }}:</span>
+            <input class="inputtb" style="float:right;" type="text" name="team2_score" value="{{ state.team2_score }}">
+            <br><br>
+            <button class="button-55-sm" style="float:right;" type="submit">Override Scores Manually</button>
+          </form>
+        </div>
+      </section>
+    </div>
   </div>
-  </section>
-
-
-
-
-</div>
- </div>
   {% if state.current_question %}
   <section>
-    <h2>Question  {{ state.current_question_index + 1 }} of {{ state.chosen_questions|length }}:</h2>
+    <h2>Question {{ state.current_question_index + 1 }} of {{ state.chosen_questions|length }}:</h2>
     <span style="text-transform:uppercase"><p>{{ state.current_question.question }}</p></span>
-
     <h3>Answers</h3>
     <span style="text-transform:uppercase">
       <ul id="answers">
-      {% for answer in state.current_question.answers %}
-        {% set i = loop.index0 %}
-        <li>
-          {{ loop.index }}. {{ answer[0] }} ({{ answer[1] }} pts) &nbsp;&nbsp;&nbsp;&nbsp;
-          {% if not state.answers_revealed[i] %}
-            <form method="post" action="{{ url_for('reveal_answer', index=i) }}" style="display:inline;" onsubmit="return playSoundAndSubmit(event, 'correct-sound');">
-              <button  class="button-55-sm" type="submit">Reveal</button>
-            </form>
-          {% else %}
-            <span> - Revealed</span>
-          {% endif %}
-        </li>
-      {% endfor %}
-    </ul>
-  </span>
+        {% for answer in state.current_question.answers %}
+          {% set i = loop.index0 %}
+          <li>
+            {{ loop.index }}. {{ answer[0] }} ({{ answer[1] }} pts) &nbsp;&nbsp;&nbsp;&nbsp;
+            {% if not state.answers_revealed[i] %}
+              <form method="post" action="{{ url_for('reveal_answer', index=i, room=room) }}" style="display:inline;" onsubmit="return playSoundAndSubmit(event, 'correct-sound');">
+                <button class="button-55-sm" type="submit">Reveal</button>
+              </form>
+            {% else %}
+              <span> - Revealed</span>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </span>
   </section>
   {% endif %}
- <br> 
+  <br>
   <section>
     <div class="form-row">
-    <form method="post" action="{{ url_for('strike') }}" onsubmit="return playSoundAndSubmit(event, 'wrong-sound');">
-      <button  class="button-55-sm" type="submit">Strike</button>
-    </form>
-    {% if state.is_steal_attempt %}
-      <form method="post" action="{{ url_for('steal_success') }}" style="display:inline;">
-        <button  class="button-55-sm" type="submit">Steal Successful</button>
+      <form method="post" action="{{ url_for('strike', room=room) }}" onsubmit="return playSoundAndSubmit(event, 'wrong-sound');">
+        <button class="button-55-sm" type="submit">Strike</button>
       </form>
-      <form method="post" action="{{ url_for('steal_failed') }}" style="display:inline;">
-        <button  class="button-55-sm" type="submit">Steal Failed</button>
-      </form>
-    {% endif %}
-  </div>
+      {% if state.is_steal_attempt %}
+        <form method="post" action="{{ url_for('steal_success', room=room) }}" style="display:inline;">
+          <button class="button-55-sm" type="submit">Steal Successful</button>
+        </form>
+        <form method="post" action="{{ url_for('steal_failed', room=room) }}" style="display:inline;">
+          <button class="button-55-sm" type="submit">Steal Failed</button>
+        </form>
+      {% endif %}
+    </div>
   </section>
-  
-  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.min.js"></script>
   <script>
     var socket = io();
-    socket.on('state_update', function(data){
-      // For moderator, you might update specific elements as needed.
-      // (Since flash messages are handled by page reloads, we’re not auto-updating those.)
-    });
+    var urlParams = new URLSearchParams(window.location.search);
+    var room = urlParams.get('room') || 'default';
+    socket.emit('join', { room: room });
+    
     function toggleMusic() {
       var music = document.getElementById("bg-music");
       if(music.muted) {
@@ -166,7 +148,6 @@
       }, 2000);
       return false;
     }
-
   </script>
 </body>
 </html>

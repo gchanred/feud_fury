@@ -9,16 +9,13 @@
   </style>
 </head>
 <body>
-  <h1>FUED FURY - FACE-OFF / PLAY-PASS</h1>
-  <br>
-  <br>
-  <br>
-  <br>
+  <h1>FEUD FURY - FACE-OFF / PLAY-PASS</h1>
+  <br><br><br><br>
   
   {% if error %}
     <p style="color:red;">{{ error }}</p>
   {% endif %}
-  <form method="post" action="{{ url_for('faceoff') }}">
+  <form method="post" action="{{ url_for('faceoff', room=room) }}">
     <h2>Select Face-Off Winner:</h2>
     <input type="radio" name="faceoff_winner" value="1" id="team1">
     <label for="team1">{{ team1 }}</label>
@@ -29,9 +26,7 @@
     <label for="play">Play</label>
     <input type="radio" name="playpass" value="pass" id="pass">
     <label for="pass">Pass</label>
-    <br>
-    <br>
-    <br>
+    <br><br><br>
     <button class="button-55" type="submit">Confirm</button>
   </form>
 </body>

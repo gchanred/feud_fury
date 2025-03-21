@@ -1,8 +1,9 @@
 import os
 import logging
-from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+import uuid  # NEW: Import uuid to generate unique room IDs
 import pandas as pd
-from flask_socketio import SocketIO
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+from flask_socketio import SocketIO, join_room, emit
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 app = Flask(__name__)
@@ -24,6 +25,9 @@ EXCEL_REQUIRED_COLUMNS = [
     'Answer 9', 'Answer 9 points',
     'Answer 10', 'Answer 10 points'
 ]
+
+# Dictionary to hold a separate GameState per room.
+room_game_states = {}
 
 class GameState:
     def __init__(self):
@@ -164,81 +168,107 @@ class GameState:
         self.team2_score = t2
         logging.info(f"Scores manually set: Team1 - {t1}, Team2 - {t2}")
 
-game_state = GameState()
-if os.path.exists("ff_questions.xlsx"):
-    try:
-        game_state.load_questions_from_excel("ff_questions.xlsx")
-    except Exception as e:
-        logging.error("Error loading questions: " + str(e))
-else:
-    logging.error("ff_questions.xlsx not found.")
+# NEW: Function to generate a new room ID automatically.
+def generate_room_id():
+    return str(uuid.uuid4())
 
-def broadcast_state():
+def get_game_state_for_room(room_id):
+    if room_id not in room_game_states:
+        room_game_states[room_id] = GameState()
+        if os.path.exists("ff_questions.xlsx"):
+            try:
+                room_game_states[room_id].load_questions_from_excel("ff_questions.xlsx")
+            except Exception as e:
+                logging.error("Error loading questions: " + str(e))
+        else:
+            logging.error("ff_questions.xlsx not found.")
+    return room_game_states[room_id]
+
+def broadcast_state(room):
+    state = get_game_state_for_room(room)
     data = {
-        "question_shown": game_state.question_shown_to_contestants,
+        "question_shown": state.question_shown_to_contestants,
         "current_question": {
-            "question": game_state.current_question['question'] if game_state.current_question and game_state.question_shown_to_contestants else "",
+            "question": state.current_question['question'] if state.current_question and state.question_shown_to_contestants else "",
             "answers": [
                 {"text": ans[0], "points": ans[1], "revealed": rev}
-                for ans, rev in zip(game_state.current_question['answers'], game_state.answers_revealed)
+                for ans, rev in zip(state.current_question['answers'], state.answers_revealed)
             ]
-        } if game_state.current_question else None,
-        "team1_score": game_state.team1_score,
-        "team2_score": game_state.team2_score,
-        "team1_name": game_state.team1_name,
-        "team2_name": game_state.team2_name,
-        "current_control_team": game_state.current_control_team,
-        "strikes": game_state.team_in_play_strikes,
-        "is_steal_attempt": game_state.is_steal_attempt,
-        "current_question_index": game_state.current_question_index + 1,
-        "total_questions": len(game_state.chosen_questions)
+        } if state.current_question else None,
+        "team1_score": state.team1_score,
+        "team2_score": state.team2_score,
+        "team1_name": state.team1_name,
+        "team2_name": state.team2_name,
+        "current_control_team": state.current_control_team,
+        "strikes": state.team_in_play_strikes,
+        "is_steal_attempt": state.is_steal_attempt,
+        "current_question_index": state.current_question_index + 1,
+        "total_questions": len(state.chosen_questions)
     }
-    socketio.emit('state_update', data, broadcast=True)
+    socketio.emit('state_update', data, room=room)
 
+@socketio.on('join')
+def on_join(data):
+    room = data.get('room', 'default')
+    join_room(room)
+    logging.info(f"Client joined room: {room}")
+    broadcast_state(room)
+
+# Updated index route to generate a new room automatically if none is provided.
 @app.route('/')
 def index():
-    return redirect(url_for('moderator'))
+    room = request.args.get('room')
+    if not room:
+        room = generate_room_id()
+        return redirect(url_for('moderator', room=room))
+    return redirect(url_for('moderator', room=room))
 
 @app.route('/moderator')
 def moderator():
-    return render_template('moderator.html', state=game_state)
+    room = request.args.get('room', 'default')
+    state = get_game_state_for_room(room)
+    return render_template('moderator.html', state=state, room=room)
 
 @app.route('/contestant')
 def contestant():
-    return render_template('contestant.html', state=game_state)
+    room = request.args.get('room', 'default')
+    state = get_game_state_for_room(room)
+    return render_template('contestant.html', state=state, room=room)
 
 @app.route('/instructions')
 def instructions():
-    return render_template('instructions.html')
-
+    room = request.args.get('room', 'default')
+    return render_template('instructions.html', room=room)
 
 @app.route('/api/state')
 def api_state():
+    room = request.args.get('room', 'default')
+    state = get_game_state_for_room(room)
     data = {
-        "question_shown": game_state.question_shown_to_contestants,
+        "question_shown": state.question_shown_to_contestants,
         "current_question": {
-            "question": game_state.current_question['question'] if game_state.current_question and game_state.question_shown_to_contestants else "",
+            "question": state.current_question['question'] if state.current_question and state.question_shown_to_contestants else "",
             "answers": [
                 {"text": ans[0], "points": ans[1], "revealed": rev}
-                for ans, rev in zip(game_state.current_question['answers'], game_state.answers_revealed)
+                for ans, rev in zip(state.current_question['answers'], state.answers_revealed)
             ]
-        } if game_state.current_question else None,
-        "team1_score": game_state.team1_score,
-        "team2_score": game_state.team2_score,
-        "team1_name": game_state.team1_name,
-        "team2_name": game_state.team2_name,
-        "current_control_team": game_state.current_control_team,
-        "strikes": game_state.team_in_play_strikes,
-        "is_steal_attempt": game_state.is_steal_attempt,
-        "current_question_index": game_state.current_question_index + 1,
-        "total_questions": len(game_state.chosen_questions)
+        } if state.current_question else None,
+        "team1_score": state.team1_score,
+        "team2_score": state.team2_score,
+        "team1_name": state.team1_name,
+        "team2_name": state.team2_name,
+        "current_control_team": state.current_control_team,
+        "strikes": state.team_in_play_strikes,
+        "is_steal_attempt": state.is_steal_attempt,
+        "current_question_index": state.current_question_index + 1,
+        "total_questions": len(state.chosen_questions)
     }
-    if game_state.current_question is None and game_state.current_question_index >= len(game_state.chosen_questions):
-        t1, t2 = game_state.scores()
+    if state.current_question is None and state.current_question_index >= len(state.chosen_questions):
+        t1, t2 = state.scores()
         if t1 > t2:
-            winner = {"name": game_state.team1_name, "points": t1}
+            winner = {"name": state.team1_name, "points": t1}
         elif t2 > t1:
-            winner = {"name": game_state.team2_name, "points": t2}
+            winner = {"name": state.team2_name, "points": t2}
         else:
             winner = {"name": "Tie", "points": t1}
         data["winner"] = winner
@@ -246,124 +276,142 @@ def api_state():
 
 @app.route('/round_setup', methods=['GET', 'POST'])
 def round_setup():
+    room = request.args.get('room', 'default')
+    state = get_game_state_for_room(room)
     if request.method == 'POST':
         selected = request.form.getlist('questions')
         team1 = request.form.get('team1')
         team2 = request.form.get('team2')
         if len(selected) != REQUIRED_QUESTION_COUNT:
             error = f"Please select exactly {REQUIRED_QUESTION_COUNT} questions."
-            return render_template('round_setup.html', error=error, questions=game_state.all_questions)
+            return render_template('round_setup.html', error=error, questions=state.all_questions, room=room)
         if not team1 or not team2:
             error = "Please provide both team names."
-            return render_template('round_setup.html', error=error, questions=game_state.all_questions)
-        game_state.set_round_questions_and_teams(selected, team1, team2)
+            return render_template('round_setup.html', error=error, questions=state.all_questions, room=room)
+        state.set_round_questions_and_teams(selected, team1, team2)
         flash("Round setup complete.", "success")
-        broadcast_state()
-        return redirect(url_for('moderator'))
-    return render_template('round_setup.html', questions=game_state.all_questions)
+        broadcast_state(room)
+        return redirect(url_for('moderator', room=room))
+    return render_template('round_setup.html', questions=state.all_questions, room=room)
 
 @app.route('/moderator/start', methods=['POST'])
 def start_next_question():
-    if not game_state.start_next_question():
+    room = request.args.get('room', 'default')
+    state = get_game_state_for_room(room)
+    if not state.start_next_question():
         flash("No more questions available.", "info")
     else:
         flash("Next question started.", "success")
-    broadcast_state()
-    return redirect(url_for('moderator'))
+    broadcast_state(room)
+    return redirect(url_for('moderator', room=room))
 
 @app.route('/moderator/show_question', methods=['POST'])
 def show_question():
-    if game_state.current_question:
-        game_state.question_shown_to_contestants = True
+    room = request.args.get('room', 'default')
+    state = get_game_state_for_room(room)
+    if state.current_question:
+        state.question_shown_to_contestants = True
         flash("Question shown to contestants.", "success")
     else:
         flash("No current question.", "error")
-    broadcast_state()
-    return redirect(url_for('moderator'))
+    broadcast_state(room)
+    return redirect(url_for('moderator', room=room))
 
 @app.route('/moderator/reveal/<int:index>', methods=['POST'])
 def reveal_answer(index):
-    if not game_state.question_shown_to_contestants:
+    room = request.args.get('room', 'default')
+    state = get_game_state_for_room(room)
+    if not state.question_shown_to_contestants:
         flash("You must show the question first.", "error")
-        broadcast_state()
-        return redirect(url_for('moderator'))
-    if game_state.current_question is None or index < 0 or index >= len(game_state.current_question['answers']):
+        broadcast_state(room)
+        return redirect(url_for('moderator', room=room))
+    if state.current_question is None or index < 0 or index >= len(state.current_question['answers']):
         flash("Invalid answer index.", "error")
-        broadcast_state()
-        return redirect(url_for('moderator'))
-    if not game_state.answers_revealed[index]:
-        game_state.reveal_answer_by_index(index)
-        if not game_state.faceoff_done:
-            game_state.faceoff_done = True
-            broadcast_state()
-            return redirect(url_for('faceoff'))
-        if game_state.check_all_answers_revealed():
-            if game_state.current_control_team is not None:
-                pts = game_state.award_points(game_state.current_control_team)
-                flash(f"All answers revealed. {game_state.get_team_name(game_state.current_control_team)} awarded {pts} points.", "success")
-                game_state.current_control_team = 1 if game_state.current_control_team == 2 else 2
-    broadcast_state()
-    return redirect(url_for('moderator'))
+        broadcast_state(room)
+        return redirect(url_for('moderator', room=room))
+    if not state.answers_revealed[index]:
+        state.reveal_answer_by_index(index)
+        if not state.faceoff_done:
+            state.faceoff_done = True
+            broadcast_state(room)
+            return redirect(url_for('faceoff', room=room))
+        if state.check_all_answers_revealed():
+            if state.current_control_team is not None:
+                pts = state.award_points(state.current_control_team)
+                flash(f"All answers revealed. {state.get_team_name(state.current_control_team)} awarded {pts} points.", "success")
+                state.current_control_team = 1 if state.current_control_team == 2 else 2
+    broadcast_state(room)
+    return redirect(url_for('moderator', room=room))
 
 @app.route('/moderator/strike', methods=['POST'])
 def strike():
-    strikes = game_state.add_strike()
+    room = request.args.get('room', 'default')
+    state = get_game_state_for_room(room)
+    strikes = state.add_strike()
     flash(f"Strike added. Total strikes: {strikes}", "info")
     if strikes >= 3:
-        game_state.enable_steal_attempt()
+        state.enable_steal_attempt()
         flash("Three strikes reached! Steal attempt enabled.", "warning")
-    broadcast_state()
-    return redirect(url_for('moderator'))
+    broadcast_state(room)
+    return redirect(url_for('moderator', room=room))
 
 @app.route('/moderator/steal_success', methods=['POST'])
 def steal_success():
-    if game_state.current_control_team is not None:
-        stealing_team = 1 if game_state.current_control_team == 2 else 2
-        pts = game_state.award_points(stealing_team)
-        flash(f"Steal successful. {game_state.get_team_name(stealing_team)} awarded {pts} points.", "success")
-        game_state.current_control_team = 1 if game_state.current_control_team == 2 else 2
-    game_state.is_steal_attempt = False
-    broadcast_state()
-    return redirect(url_for('moderator'))
+    room = request.args.get('room', 'default')
+    state = get_game_state_for_room(room)
+    if state.current_control_team is not None:
+        stealing_team = 1 if state.current_control_team == 2 else 2
+        pts = state.award_points(stealing_team)
+        flash(f"Steal successful. {state.get_team_name(stealing_team)} awarded {pts} points.", "success")
+        state.current_control_team = 1 if state.current_control_team == 2 else 2
+    state.is_steal_attempt = False
+    broadcast_state(room)
+    return redirect(url_for('moderator', room=room))
 
 @app.route('/moderator/steal_failed', methods=['POST'])
 def steal_failed():
-    if game_state.current_control_team is not None:
-        pts = game_state.award_points(game_state.current_control_team)
-        flash(f"Steal failed. {game_state.get_team_name(game_state.current_control_team)} awarded {pts} points.", "info")
-        game_state.current_control_team = 1 if game_state.current_control_team == 2 else 2
-    game_state.is_steal_attempt = False
-    broadcast_state()
-    return redirect(url_for('moderator'))
+    room = request.args.get('room', 'default')
+    state = get_game_state_for_room(room)
+    if state.current_control_team is not None:
+        pts = state.award_points(state.current_control_team)
+        flash(f"Steal failed. {state.get_team_name(state.current_control_team)} awarded {pts} points.", "info")
+        state.current_control_team = 1 if state.current_control_team == 2 else 2
+    state.is_steal_attempt = False
+    broadcast_state(room)
+    return redirect(url_for('moderator', room=room))
 
 @app.route('/moderator/update_scores', methods=['POST'])
 def update_scores():
+    room = request.args.get('room', 'default')
+    state = get_game_state_for_room(room)
     try:
-        t1 = int(request.form.get('team1_score', game_state.team1_score))
-        t2 = int(request.form.get('team2_score', game_state.team2_score))
-        game_state.set_scores(t1, t2)
+        t1 = int(request.form.get('team1_score', state.team1_score))
+        t2 = int(request.form.get('team2_score', state.team2_score))
+        state.set_scores(t1, t2)
         flash("Scores updated.", "success")
     except ValueError:
         flash("Invalid score values.", "error")
-    broadcast_state()
-    return redirect(url_for('moderator'))
+    broadcast_state(room)
+    return redirect(url_for('moderator', room=room))
 
 @app.route('/moderator/faceoff', methods=['GET', 'POST'])
 def faceoff():
+    room = request.args.get('room', 'default')
+    state = get_game_state_for_room(room)
     if request.method == 'POST':
         winner = request.form.get('faceoff_winner')
         playpass = request.form.get('playpass')
         if not winner or not playpass:
             error = "Select both a face-off winner and a play/pass decision."
-            broadcast_state()
-            return render_template('faceoff.html', error=error, team1=game_state.team1_name, team2=game_state.team2_name)
-        game_state.set_faceoff_winner(winner)
+            broadcast_state(room)
+            return render_template('faceoff.html', error=error, team1=state.team1_name, team2=state.team2_name, room=room)
+        state.set_faceoff_winner(winner)
         play = True if playpass == "play" else False
-        game_state.apply_play_pass(play)
-        flash(f"Face-off complete. {game_state.get_team_name(game_state.current_control_team)} will play.", "success")
-        broadcast_state()
-        return redirect(url_for('moderator'))
-    return render_template('faceoff.html', team1=game_state.team1_name, team2=game_state.team2_name)
+        state.apply_play_pass(play)
+        flash(f"Face-off complete. {state.get_team_name(state.current_control_team)} will play.", "success")
+        broadcast_state(room)
+        return redirect(url_for('moderator', room=room))
+    return render_template('faceoff.html', team1=state.team1_name, team2=state.team2_name, room=room)
 
 if __name__ == '__main__':
     socketio.run(app, debug=False)

@@ -45,29 +45,12 @@
       cursor: pointer;
       text-align: center;
     }
-    .return-button-top {
-      float:right;
-      width: 200px;
-      margin: 30px auto;
-      padding: 10px;
-      font-size: 1.2em;
-      background-color: #4CAF50;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      text-align: center;
-    }
   </style>
 </head>
 <body>
   <h1>FEUD FURY - Instruction Manual</h1>
-<br>
-
-    <!-- Return to game button -->
-    <button class="button-55" style="float:right;" onclick="window.location.href='{{ url_for('moderator') }}'">Return to the Game</button>
-
-
+  <br>
+  <button class="button-55" style="float:right;" onclick="window.location.href='{{ url_for('moderator', room=room) }}'">Return to the Game</button>
   <h2>Introduction</h2>
   <p>
     Feud Fury is an engaging, real-time survey game where two teams compete to guess the most popular answers to survey questions. This game is controlled by a moderator while contestants follow along on a separate display. Enjoy the excitement at parties, family gatherings, or team-building events!
@@ -75,10 +58,10 @@
   <h2>Getting Started</h2>
   <ol>
     <li>
-        <strong>Moderator:</strong> A moderator is required to setup and conduct the game. Moderator needs to launch the contestant window after the game is setup and ensure Contestants can only see that window (use a TV/Monitor and use screen extension). 
+        <strong>Moderator:</strong> A moderator is required to setup and conduct the game. The moderator needs to launch the contestant window after game setup and ensure contestants only see that window (use a TV/Monitor with extended display).
     </li>
-      <li>
-      <strong>Access the Game:</strong> Open your browser and go to the moderator view (e.g., <code>https://feudfurygame.chandukesireddy.com/</code>). For contestants, the moderator will launch the window from the moderator controls and share the screen.
+    <li>
+      <strong>Access the Game:</strong> Open your browser and go to the moderator view (e.g., <code>https://feudfurygame.chandukesireddy.com/?room=default</code>). The moderator will launch the contestant window and share the screen.
     </li>
     <li>
       <strong>No Login Required:</strong> Simply visit the URL to join the game.
@@ -86,8 +69,8 @@
   </ol>
   <h2>Moderator Interface</h2>
   <ul>
-    <li><strong>Round Setup:</strong> Enter team names and choose questions manually from the list or use the “Let the system select randomly” button to let the system pick four questions at random.</li>
-    <li><strong>Starting the Game:</strong> Ensure you click on the 'Launch Contestant Screen' and share the window with the contestants. Click “Start / Move to Next Question” to begin or advance through the game after that.</li>
+    <li><strong>Round Setup:</strong> Enter team names and choose questions manually or use the “Let the system select randomly” button to have the system pick four questions at random.</li>
+    <li><strong>Starting the Game:</strong> Launch the contestant window, share it with players, then click “Start / Move to Next Question” to begin or advance through the game.</li>
     <li><strong>Show Question:</strong> Click “Show Question to Contestants” to display the question on the contestant screen.</li>
     <li><strong>Reveal Answers:</strong> Click “Reveal” next to an answer to display it with audio cues.</li>
     <li><strong>Strikes & Steals:</strong> Mark a wrong answer by clicking “Strike.” After three strikes, a steal attempt can be made using the provided buttons.</li>
@@ -114,7 +97,6 @@
   <p>
     Enjoy playing Feud Fury and have fun competing with your friends and family!
   </p>
-  <!-- Return to game button -->
-  <button class="button-55" style="float:center;" onclick="window.location.href='{{ url_for('moderator') }}'">Return to the Game</button>
+  <button class="button-55" style="float:center;" onclick="window.location.href='{{ url_for('moderator', room=room) }}'">Return to the Game</button>
 </body>
 </html>

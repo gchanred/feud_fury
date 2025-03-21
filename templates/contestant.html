@@ -56,27 +56,22 @@
   </style>
 </head>
 <body>
-  <!-- Background music -->
   <audio id="bg-music" src="{{ url_for('static', filename='background_music.mp3') }}" loop autoplay muted preload="auto"></audio>
   
   <header>
     <h1>FEUD FURY</h1>
-    <br>
-    <br>
-    <br>
+    <br><br><br>
     <div class="team-scores">
-      <div id="T1Score">Team <span style="text-transform:uppercase; color:yellow;">{{ state.team1_name }}:</span> <span class="button-55" style="font-size:150%; color:green ;padding: 15px;" >{{ state.team1_score }}</span></div>
-      <div id="strikes-display" style="text-transform:uppercase; color:Red;font-size:100%;">Strikes: </div>
-      <div id="T2Score">Team <span style="text-transform:uppercase; color:yellow;">{{ state.team2_name }}:</span> <span class="button-55" style="font-size:150%; color:green ;padding: 15px;">{{ state.team2_score }}</span></div>
+      <div id="T1Score">Team <span style="text-transform:uppercase; color:yellow;">{{ state.team1_name }}:</span> <span class="button-55" style="font-size:150%; color:green; padding: 15px;">{{ state.team1_score }}</span></div>
+      <div id="strikes-display" style="text-transform:uppercase; color:Red; font-size:100%;">Strikes: </div>
+      <div id="T2Score">Team <span style="text-transform:uppercase; color:yellow;">{{ state.team2_name }}:</span> <span class="button-55" style="font-size:150%; color:green; padding: 15px;">{{ state.team2_score }}</span></div>
     </div>
   </header>
   
   <div id="giant-x">X</div>
   
   <main>
-    <br>
-    <br>
-    <br>
+    <br><br><br>
     <span style="text-transform:uppercase"><h2 id="question"></h2></span>
     <span style="text-transform:uppercase"><h2><ul id="answers"></ul></h2></span>
     
@@ -90,6 +85,11 @@
   <script>
     var lastStrikeCount = 0;
     var socket = io();
+    // Extract room from URL query parameter
+    var urlParams = new URLSearchParams(window.location.search);
+    var room = urlParams.get('room') || 'default';
+    socket.emit('join', { room: room });
+    
     socket.on('state_update', function(data){
       if (data.question_shown && data.current_question) {
         $("#question").text("Question " + data.current_question_index + " of " + data.total_questions + ": " + data.current_question.question);
@@ -106,25 +106,18 @@
         $("#question").text("");
         $("#answers").html("");
       }
-      /* $(".team-scores div:first").text("Team " + data.team1_name + ": " + data.team1_score);
-      $(".team-scores div:last").text("Team " + data.team2_name + ": " + data.team2_score);
-     */  
-
-      if (data.current_control_team == 1) {
-          document.getElementById("T1Score").innerHTML = '<div><span style="text-decoration: underline;text-decoration-thickness: 8px;text-shadow:2px 2px 10px , 2px 2px 10px ;  ">Team </span> <span style="text-transform:uppercase; color:yellow;text-decoration: underline;text-decoration-thickness: 8px;text-shadow:2px 2px 10px , 2px 2px 10px; ">' + data.team1_name + ':</span> <span class="button-55" style="font-size:150%; color:green ;padding: 15px;" >' + data.team1_score + '</span></div>'
-          document.getElementById("T2Score").innerHTML = '<div>Team <span style="text-transform:uppercase; color:yellow;">' + data.team2_name + ':</span> <span class="button-55" style="font-size:150%; color:green ;padding: 15px;" >' + data.team2_score + '</span></div>'
-      } 
-      else if (data.current_control_team == 2) {
-          document.getElementById("T1Score").innerHTML = '<div>Team <span style="text-transform:uppercase; color:yellow;">' + data.team1_name + ':</span> <span class="button-55" style="font-size:150%; color:green ;padding: 15px;" >' + data.team1_score + '</span></div>'
-          document.getElementById("T2Score").innerHTML = '<div><span style="text-decoration: underline;text-decoration-thickness: 8px;text-shadow:2px 2px 10px , 2px 2px 10px ; ">Team </span><span style="text-transform:uppercase; color:yellow;text-decoration: underline;text-decoration-thickness: 8px;text-shadow:2px 2px 10px , 2px 2px 10px ; ">' + data.team2_name + ':</span> <span class="button-55" style="font-size:150%; color:green ;padding: 15px;" >' + data.team2_score + '</span></div>'
-      }
-      else {
-          document.getElementById("T1Score").innerHTML = '<div>Team <span style="text-transform:uppercase; color:yellow;">' + data.team1_name + ':</span> <span class="button-55" style="font-size:150%; color:green ;padding: 15px;" >' + data.team1_score + '</span></div>'
-          document.getElementById("T2Score").innerHTML = '<div>Team <span style="text-transform:uppercase; color:yellow;">' + data.team2_name + ':</span> <span class="button-55" style="font-size:150%; color:green ;padding: 15px;" >' + data.team2_score + '</span></div>'
-          }
-
       
-
+      if (data.current_control_team == 1) {
+          document.getElementById("T1Score").innerHTML = '<div><span style="text-decoration: underline;text-decoration-thickness: 8px;text-shadow:2px 2px 10px;">Team </span> <span style="text-transform:uppercase; color:yellow;text-decoration: underline;text-decoration-thickness: 8px;text-shadow:2px 2px 10px;">' + data.team1_name + ':</span> <span class="button-55" style="font-size:150%; color:green; padding: 15px;">' + data.team1_score + '</span></div>';
+          document.getElementById("T2Score").innerHTML = '<div>Team <span style="text-transform:uppercase; color:yellow;">' + data.team2_name + ':</span> <span class="button-55" style="font-size:150%; color:green; padding: 15px;">' + data.team2_score + '</span></div>';
+      } else if (data.current_control_team == 2) {
+          document.getElementById("T1Score").innerHTML = '<div>Team <span style="text-transform:uppercase; color:yellow;">' + data.team1_name + ':</span> <span class="button-55" style="font-size:150%; color:green; padding: 15px;">' + data.team1_score + '</span></div>';
+          document.getElementById("T2Score").innerHTML = '<div><span style="text-decoration: underline;text-decoration-thickness: 8px;text-shadow:2px 2px 10px;">Team </span><span style="text-transform:uppercase; color:yellow;text-decoration: underline;text-decoration-thickness: 8px;text-shadow:2px 2px 10px;">' + data.team2_name + ':</span> <span class="button-55" style="font-size:150%; color:green; padding: 15px;">' + data.team2_score + '</span></div>';
+      } else {
+          document.getElementById("T1Score").innerHTML = '<div>Team <span style="text-transform:uppercase; color:yellow;">' + data.team1_name + ':</span> <span class="button-55" style="font-size:150%; color:green; padding: 15px;">' + data.team1_score + '</span></div>';
+          document.getElementById("T2Score").innerHTML = '<div>Team <span style="text-transform:uppercase; color:yellow;">' + data.team2_name + ':</span> <span class="button-55" style="font-size:150%; color:green; padding: 15px;">' + data.team2_score + '</span></div>';
+      }
+      
       let strikesX = "Strikes: ";
       for (let i = 0; i < data.strikes; i++) {
         strikesX += "X";
