@@ -4,7 +4,6 @@ import uuid  # NEW: Import uuid to generate unique room IDs
 import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
 from flask_socketio import SocketIO, join_room, emit
-from flask import session
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 app = Flask(__name__)
@@ -218,15 +217,15 @@ def on_join(data):
 # Updated index route to generate a new room automatically if none is provided.
 @app.route('/')
 def index():
-    if 'room' not in session:
-        session['room'] = generate_room_id()
-    room = session['room']
-    return redirect(url_for('moderator'))
+    room = request.args.get('room')
+    if not room:
+        room = generate_room_id()
+        return redirect(url_for('moderator', room=room))
+    return redirect(url_for('moderator', room=room))
 
 @app.route('/moderator')
 def moderator():
-    # room = request.args.get('room', 'default')
-    room = session.get('room', 'default')
+    room = request.args.get('room', 'default')
     state = get_game_state_for_room(room)
     return render_template('moderator.html', state=state, room=room)
 

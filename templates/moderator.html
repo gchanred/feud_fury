@@ -14,8 +14,6 @@
   <audio id="correct-sound" src="{{ url_for('static', filename='correct.wav') }}" preload="auto"></audio>
   <audio id="wrong-sound" src="{{ url_for('static', filename='wrong-buzzer.wav') }}" preload="auto"></audio>
 
-  <span id="room-id">{{ room }}</span>
-
   <span id="title"><h1>FEUD FURY – Moderator</h1></span>
   <span id="instbutton">
     <button class="button-55" onclick="window.location.href='{{ url_for('instructions', room=room) }}'">Instructions</button>
@@ -125,11 +123,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.min.js"></script>
   <script>
     var socket = io();
-/*     var urlParams = new URLSearchParams(window.location.search);
-    var room = urlParams.get('room') || 'default'; */
-
-    var room = document.getElementById("room-id").textContent.trim() || 'defauccxcxclt';
-
+    var urlParams = new URLSearchParams(window.location.search);
+    var room = urlParams.get('room') || 'default';
     socket.emit('join', { room: room });
     
     function toggleMusic() {
