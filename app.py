@@ -221,7 +221,7 @@ def index():
     if 'room' not in session:
         session['room'] = generate_room_id()
     room = session['room']
-    return redirect(url_for('moderator', room=room))
+    return redirect(url_for('moderator'))
 
 @app.route('/moderator')
 def moderator():
